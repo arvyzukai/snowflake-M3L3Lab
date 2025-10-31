@@ -21,7 +21,7 @@ with tab1:
         SELECT
             *
         FROM
-            CUSTOMER_REVIEWS2
+            REVIEWS_SENTIMENT_BIG
         """
         return session.sql(query_reviews).to_pandas()
 
@@ -93,4 +93,5 @@ with tab2:
             for _, row in search_df.iterrows():
                 st.write(f"**{row['CHUNK']}**")
                 st.caption(row['file_name'])
+
                 st.write('---')
