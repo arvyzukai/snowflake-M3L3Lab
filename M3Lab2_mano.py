@@ -4,8 +4,23 @@ import matplotlib.pyplot as plt
 import json
 from snowflake.core import Root
 from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark import Session
 
-session = st.connection("snowflake").session()
+# Create Snowflake connection
+@st.cache_resource
+def get_snowflake_session():
+    connection_parameters = {
+        "account": st.secrets["connections"]["snowflake"]["account"],
+        "user": st.secrets["connections"]["snowflake"]["user"],
+        "password": st.secrets["connections"]["snowflake"]["password"],
+        "role": st.secrets["connections"]["snowflake"]["role"],
+        "warehouse": st.secrets["connections"]["snowflake"]["warehouse"],
+        "database": st.secrets["connections"]["snowflake"]["database"],
+        "schema": st.secrets["connections"]["snowflake"]["schema"]
+    }
+    return Session.builder.configs(connection_parameters).create()
+
+session = get_snowflake_session()
 
 # Create tabs
 tab1, tab2 = st.tabs(["Data & Plots", "RAG App"])
@@ -64,7 +79,7 @@ with tab1:
 with tab2:
     st.title("RAG App")
 
-    session = get_active_session()
+    session = get_snowflake_session()
 
     # Input box for user prompt
     prompt = st.text_input("Enter your query:", value="Any complaints about the carrier?")
@@ -93,5 +108,4 @@ with tab2:
             for _, row in search_df.iterrows():
                 st.write(f"**{row['CHUNK']}**")
                 st.caption(row['file_name'])
-
                 st.write('---')
